@@ -25,8 +25,8 @@ class UsersController extends AppController
          $message = "";
          $datas = [];
 
-         $this->set(compact('status', 'message', 'datas'));
-         $this->set('_serialize', ['status', 'message', 'datas']);
+         $final = json_encode(compact('status', 'message', 'datas'));
+         $this->resonse->body($final);
      }
 
     /**
@@ -60,8 +60,6 @@ class UsersController extends AppController
         $message = "";
         $datas = [];
 
-        $key = "chevalchevalchevalchevalchevalchevalchevalchevalcheval";
-
         $user = $this->Users->newEntity();
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->data);
@@ -83,8 +81,8 @@ class UsersController extends AppController
             $status = "KO";
             $message = "Bad Request ::: Not POST";
         }
-        $this->set(compact('status', 'message', 'datas'));
-        $this->set('_serialize', ['status', 'message', 'datas']);
+        $final = json_encode(compact('status', 'message', 'datas'));
+        $this->resonse->body($final);
     }
 
     public function connect()
@@ -116,8 +114,8 @@ class UsersController extends AppController
             $message = "Impossible to connect ::: User do not exist";
         }
 
-        $this->set(compact('status', 'message', 'datas'));
-        $this->set('_serialize', ['status', 'message', 'datas']);
+        $final = json_encode(compact('status', 'message', 'datas'));
+        $this->resonse->body($final);
     }
 
     /**
