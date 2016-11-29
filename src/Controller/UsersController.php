@@ -81,8 +81,9 @@ class UsersController extends AppController
             $status = "KO";
             $message = "Bad Request ::: Not POST";
         }
-        $final = json_encode(compact('status', 'message', 'datas'));
-        $this->resonse->body($final);
+        
+        $this->set(compact('status', 'message', 'datas'));
+        $this->set('_serialize', ['status', 'message', 'datas']);
     }
 
     public function connect()
@@ -94,8 +95,8 @@ class UsersController extends AppController
         $message = "";
         $datas = [];
 
-        $pseudo = $this->request->data["pseudo"];
-        $password = $this->request->data["password"];
+        $pseudo = (isset($this->request->data["pseudo"])) ? $this->request->data["pseudo"] : null;
+        $password = (isset($this->request->data["password"])) ? $this->request->data["password"] : null;
 
         // check if user exist
         $query_user_exist = $this->Users->find('all')->where(['pseudo = ' => $pseudo]);
@@ -114,8 +115,8 @@ class UsersController extends AppController
             $message = "Impossible to connect ::: User do not exist";
         }
 
-        $final = json_encode(compact('status', 'message', 'datas'));
-        $this->resonse->body($final);
+        $this->set(compact('status', 'message', 'datas'));
+        $this->set('_serialize', ['status', 'message', 'datas']);
     }
 
     /**
