@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\Utility\Security;
+use Cake\Network\Session;
 /**
  * Users Controller
  *
@@ -105,6 +106,10 @@ class UsersController extends AppController
             if($password == $user_db->password){
                 $message = "Connection is successfull";
                 array_push($datas,$user_db);
+                $session = $this->request->session();
+                $session->write('connected','true');
+                $session->write('username',$user_db->pseudo);
+                $session->write('uid',$user_db->id);
             } else {
                 $status = "KO";
                 $message = "Impossible to connect ::: Wrong password";
