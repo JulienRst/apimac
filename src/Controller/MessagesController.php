@@ -26,7 +26,10 @@ class MessagesController extends AppController
         $message = "";
         $datas = [];
 
-        if($this->request->session()->read('connected')){
+        $session = new SessionsController();
+        $apikey = $this->request->data["key"];
+
+        if($session->verify($apikey)){
             $messages = $this->Messages->find('all', [
                 'order' => ['Messages.timestamp' => 'ASC'],
                 'contain' => ['Users']
@@ -34,7 +37,7 @@ class MessagesController extends AppController
 
             $datas["messages"] = array();
             foreach($messages as $message_){
-                if($message_->user->id == $this->request->session()->read('uid')){
+                if($message_->user->id == $session->getUserId($apikey)){
                     array_push($datas["messages"],["message" => $message_->message, "pseudo" => $message_->user->pseudo, "self" => true]);
                 } else {
                     array_push($datas["messages"],["message" => $message_->message, "pseudo" => $message_->user->pseudo, "self" => false]);
@@ -83,10 +86,11 @@ class MessagesController extends AppController
         $message_ = $this->Messages->newEntity();
         if ($this->request->is('post')) {
             $message_ = $this->Messages->patchEntity($message_, $this->request->data);
-            $session = $this->request->session();
-            $isConnected = $session->read('connected');
-            if($isConnected){
-                $idUser = $session->read('uid');
+            $session = new SessionsController();
+            $apikey = $this->request->data["key"];
+
+            if($session->verify($apikey)){
+                $idUser = $session->getUserId($apikey);
                 $query_user_exist = $this->Users->find('all')->where(['id = ' => $idUser]);
                 $user_db = $query_user_exist->first();
                 if($user_db !== null){

@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use App\Controller\SessionsController;
 use Cake\Utility\Security;
 use Cake\Network\Session;
 /**
@@ -11,42 +12,6 @@ use Cake\Network\Session;
  */
 class UsersController extends AppController
 {
-
-    /**
-     * Index method
-     *
-     * @return \Cake\Network\Response|null
-     */
-     public function index()
-     {
-         $this->RequestHandler->renderAs($this,'json');
-         $this->viewBuilder()->layout(null);
-
-         $status = "OK";
-         $message = "";
-         $datas = [];
-
-         $final = json_encode(compact('status', 'message', 'datas'));
-         $this->resonse->body($final);
-     }
-
-    /**
-     * View method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Network\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $user = $this->Users->get($id, [
-            'contain' => []
-        ]);
-
-        $this->set('user', $user);
-        $this->set('_serialize', ['user']);
-    }
-
     /**
      * Add method
      *
@@ -90,6 +55,7 @@ class UsersController extends AppController
     {
         $this->RequestHandler->renderAs($this,'json');
         $this->viewBuilder()->layout(null);
+        $this->loadModel('Sessions');
 
         $status = "OK";
         $message = "";
@@ -105,11 +71,9 @@ class UsersController extends AppController
             // check if password is ok
             if($password == $user_db->password){
                 $message = "Connection is successfull";
-                array_push($datas,$user_db);
-                $session = $this->request->session();
-                $session->write('connected','true');
-                $session->write('username',$user_db->pseudo);
-                $session->write('uid',$user_db->id);
+                $session = new SessionsController();
+                $key = $session->create($user_db->id);
+                $datas = ["key" => $key];
             } else {
                 $status = "KO";
                 $message = "Impossible to connect ::: Wrong password";
@@ -117,35 +81,6 @@ class UsersController extends AppController
         } else {
             $status = "KO";
             $message = "Impossible to connect ::: User do not exist";
-        }
-
-        $this->set(compact('status', 'message', 'datas'));
-        $this->set('_serialize', ['status', 'message', 'datas']);
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Network\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->RequestHandler->renderAs($this,'json');
-        $this->viewBuilder()->layout(null);
-
-        $status = "OK";
-        $message = "";
-        $datas = [];
-
-        $this->request->allowMethod(['post', 'delete']);
-        $user = $this->Users->get($id);
-        if ($this->Users->delete($user)) {
-            $message = "User is successfully delete";
-        } else {
-            $status = "KO";
-            $message = "Impossible to delete user ::: Check the content of your request";
         }
 
         $this->set(compact('status', 'message', 'datas'));
